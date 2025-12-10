@@ -1,8 +1,3 @@
-Here is the `README.md` content in raw text format. You can copy-paste this directly into a file named `README.md` in your repository root.
-
------
-
-````markdown
 # UR5e Digital Twin & Unchained Stress Test
 
 This repository contains a fully containerized "Digital Twin" development environment for the Universal Robots UR5e. It runs entirely on Docker, simulating the hardware (URSim) and the control logic (ROS 2 Humble + MoveIt 2) in separate networked containers.
