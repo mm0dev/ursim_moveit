@@ -1,0 +1,21 @@
+# ROS 2 Build Artifacts (Heavy folders to ignore)
+build/
+install/
+log/
+.colcon/
+
+# Python compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.pytest_cache/
+
+# Docker volumes and data
+ursim_system_data/
+
+# OS and Editor files
+.DS_Store
+.vscode/
+.idea/
+*.swp

@@ -1,0 +1,48 @@
+services:
+  ursim:
+    image: universalrobots/ursim_e-series:latest
+    container_name: ursim
+    platform: linux/amd64
+    networks:
+      - ur_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:6080/vnc.html"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    ports:
+      - "8080:6080"
+      - "29999:29999"
+      - "30001-30004:30001-30004"
+    volumes:
+      - ./ursim_programs:/ursim/programs
+      # --- THE FIX: PERSIST THE SYSTEM SETTINGS ---
+      - ursim_system_data:/ursim/GUI
+    environment:
+      - ROBOT_MODEL=UR5e
+    cap_add:
+      - SYS_NICE
+
+  ros2_control:
+    # (Keep your existing ROS config exactly as is)
+    platform: linux/arm64
+    build: .
+    container_name: ros2_ur_control
+    networks:
+      - ur_net
+    environment:
+      - DISPLAY=host.docker.internal:0
+      - LIBGL_ALWAYS_INDIRECT=0
+    volumes:
+      - ./ursim_programs:/root/ursim_programs
+      - ./ros2_ws:/root/ros2_ws
+    ports:
+      - "50002:50002"
+
+networks:
+  ur_net:
+    driver: bridge
+
+# --- ADD THIS SECTION AT THE BOTTOM ---
+volumes:
+  ursim_system_data:
