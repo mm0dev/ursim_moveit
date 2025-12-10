@@ -96,12 +96,12 @@ Run the stress test:
 source install/setup.bash
 
 # 2. Run the node
-ros2 run my_ur_station unchained_stress_test
+ros2 run my_ur_station stress_test
 ```
 
 ## 🧠 What the Script Does
 
-The `unchained_stress_test.py` script performs the following:
+The `stress_test.py` script performs the following:
 
 1.  **Safety Bubble:** It attaches an invisible collision object (cylinder) to the robot's wrist. This forces MoveIt to plan paths that keep the wrist 8cm away from the body, preventing the "Elbow Clamping" error.
 2.  **Start State Fix:** It explicitly tells the planner to start from the *current* robot position, preventing "Invalid Start State" errors.
@@ -117,13 +117,8 @@ The `unchained_stress_test.py` script performs the following:
 
 **Error: "Goal rejected" or Code 99999**
 
-  * This usually means MoveIt is trying to plan from a collapsed state. Ensure you are running the `unchained_stress_test` (which has the fix) and not the old `moveit_mover`.
+  * This usually means MoveIt is trying to plan from a collapsed state. Ensure you are running the `stress_test` (which has the fix) and not the old `moveit_mover`.
 
 **Error: "Command not found: ros2"**
 
   * You forgot to source\! Run `source install/setup.bash`.
-
-<!-- end list -->
-
-```
-```

@@ -28,6 +28,8 @@ setup(
             'moveit_mover = my_ur_station.moveit_mover:main',
             'stress_test = my_ur_station.stress_test:main',
             'unchained_stress_test = my_ur_station.unchained_stress_test:main',
+            # --- THIS WAS MISSING ---
+            'final_stable_test = my_ur_station.final_stable_test:main',
         ],
     },
 )

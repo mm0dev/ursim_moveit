@@ -1,7 +1,7 @@
 services:
   ursim:
     image: universalrobots/ursim_e-series:latest
-    container_name: ursim
+    container_name: ursim_moveit-MASTER
     platform: linux/amd64
     networks:
       - ur_net
