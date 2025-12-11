@@ -9,6 +9,8 @@ This script provides real-time keyboard control of your URSim robot using MoveIt
 - **MoveIt Servo**: Uses inverse Jacobian for real-time servo calculations
 - **Safe Motion**: Continuous singularity checking and velocity limiting
 - **Simple Interface**: Easy terminal-based control with Q/E keys
+- **Command-line Tool**: Direct twist command sending for automation/testing (`servo_twist_cmd`)
+- **Scriptable**: Can be integrated into bash scripts or Python automation
 
 ## Quick Start
 
@@ -47,16 +49,49 @@ ros2 run my_ur_station keyboard_teleop_servo
 
 ## Controls
 
-### Movement Commands
+### Interactive Keyboard Mode
+
+**Movement Commands:**
 - **Q** - Move UP (Z+ axis, positive velocity)
 - **E** - Move DOWN (Z- axis, negative velocity)
 - **X** - Exit the program
 
-### Usage
+**Usage:**
 1. Type the letter (q, e, or x) and press ENTER
 2. The robot will move for 1 second in the specified direction
 3. Movement automatically stops after 1 second
 4. Repeat as needed
+
+### Command-Line Tool (for automation/testing)
+
+Instead of using the interactive keyboard, you can send twist commands directly from the terminal:
+
+**Move UP:**
+```bash
+ros2 run my_ur_station servo_twist_cmd up
+```
+
+**Move DOWN:**
+```bash
+ros2 run my_ur_station servo_twist_cmd down
+```
+
+**Stop:**
+```bash
+ros2 run my_ur_station servo_twist_cmd stop
+```
+
+**Custom twist (linear_x, linear_y, linear_z, angular_x, angular_y, angular_z):**
+```bash
+ros2 run my_ur_station servo_twist_cmd 0 0 0.15 0 0 0  # Move up faster (0.15 m/s)
+ros2 run my_ur_station servo_twist_cmd 0.1 0 0 0 0 0    # Move forward (X+)
+```
+
+**Notes:**
+- The command continuously publishes until you press Ctrl+C
+- Automatically sends zero velocity when stopped
+- Updates timestamps properly (this is why `ros2 topic pub` doesn't work)
+- Publishes at 10 Hz
 
 ## How It Works
 
@@ -101,9 +136,16 @@ Keyboard Script → /servo_node/delta_twist_cmds (TwistStamped)
 - Safety thresholds for singularities
 
 **Teleop Script:** `/root/ros2_ws/src/my_ur_station/my_ur_station/keyboard_teleop_servo.py`
+- Interactive keyboard control with Q/E keys
 - Publishes TwistStamped messages with updated timestamps
 - Auto-starts servo service on initialization
 - Terminal-based input (works in Docker environments)
+
+**Command Tool:** `/root/ros2_ws/src/my_ur_station/my_ur_station/servo_twist_cmd.py`
+- Command-line twist sender
+- Properly updates timestamps at 10 Hz
+- Useful for scripting and automation
+- Supports custom velocity values
 
 ## Customization
 
@@ -175,6 +217,15 @@ publish_period: 0.034  # ~30 Hz
 ### Movement is too fast/slow
 - Adjust `self.linear_speed` in `keyboard_teleop_servo.py`
 - Or modify `linear_velocity_limit` in `ur_servo.yaml`
+- When using command tool, specify custom velocities: `ros2 run my_ur_station servo_twist_cmd 0 0 0.05 0 0 0`
+
+### Why doesn't `ros2 topic pub` work?
+
+The key issue is **timestamps**. MoveIt Servo requires TwistStamped messages with **continuously updated timestamps** to detect stale commands. While `ros2 topic pub` publishes messages, it doesn't properly update the `header.stamp` field at each publication. This is why:
+
+- ❌ `ros2 topic pub` - Doesn't work (static/missing timestamp)
+- ✅ `ros2 run my_ur_station servo_twist_cmd` - Works (updates timestamp at 10 Hz)
+- ✅ `ros2 run my_ur_station keyboard_teleop_servo` - Works (updates timestamp continuously)
 
 ### Robot stops unexpectedly
 - Servo has a command timeout (0.5s default)
@@ -216,8 +267,9 @@ publish_period: 0.034  # ~30 Hz
 - **Command Frame**: `base_link` (frame for twist commands)
 - **Coordinate System**: Right-handed (X forward, Y left, Z up)
 
-## Example Session
+## Example Sessions
 
+### Interactive Keyboard Session
 ```bash
 # Terminal 2 output (Servo node):
 [moveit_servo.servo_calcs]: No kinematics solver instantiated for group 'ur_manipulator'. 
@@ -243,6 +295,43 @@ Stopped
 
 Command (q/e/x): x
 Exiting...
+```
+
+### Command-Line Tool Session
+```bash
+# Move up continuously
+$ ros2 run my_ur_station servo_twist_cmd up
+Moving UP (Z+) at 0.1 m/s
+Publishing at 10 Hz. Press Ctrl+C to stop.
+^C
+Stopping...
+
+# Move down with custom speed
+$ ros2 run my_ur_station servo_twist_cmd 0 0 -0.15 0 0 0
+Sending custom twist: linear=(0.0, 0.0, -0.15), angular=(0.0, 0.0, 0.0)
+Publishing at 10 Hz. Press Ctrl+C to stop.
+^C
+Stopping...
+```
+
+### Bash Script Example
+```bash
+#!/bin/bash
+# Automated movement sequence
+
+echo "Starting servo..."
+ros2 service call /servo_node/start_servo std_srvs/srv/Trigger {}
+
+echo "Moving up for 3 seconds..."
+timeout 3 ros2 run my_ur_station servo_twist_cmd up
+
+echo "Waiting 1 second..."
+sleep 1
+
+echo "Moving down for 3 seconds..."
+timeout 3 ros2 run my_ur_station servo_twist_cmd down
+
+echo "Done!"
 ```
 
 ## Optional: Running with RViz
