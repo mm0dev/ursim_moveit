@@ -1,4 +1,6 @@
 from setuptools import find_packages, setup
+from glob import glob
+import os
 
 package_name = 'my_ur_station'
 
@@ -10,6 +12,8 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'), glob('launch/*.launch.py')),
+        (os.path.join('share', package_name, 'config'), glob('config/*.yaml')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -30,6 +34,10 @@ setup(
             'unchained_stress_test = my_ur_station.unchained_stress_test:main',
             # --- THIS WAS MISSING ---
             'final_stable_test = my_ur_station.final_stable_test:main',
+            'keyboard_teleop = my_ur_station.keyboard_teleop:main',
+            'keyboard_teleop_servo = my_ur_station.keyboard_teleop_servo:main',
+            'keyboard_teleop_direct = my_ur_station.keyboard_teleop_direct:main',
+            'cartesian_teleop = my_ur_station.cartesian_teleop:main',
         ],
     },
 )
