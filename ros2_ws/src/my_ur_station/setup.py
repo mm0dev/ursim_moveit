@@ -32,12 +32,16 @@ setup(
             'moveit_mover = my_ur_station.moveit_mover:main',
             'stress_test = my_ur_station.stress_test:main',
             'unchained_stress_test = my_ur_station.unchained_stress_test:main',
-            # --- THIS WAS MISSING ---
             'final_stable_test = my_ur_station.final_stable_test:main',
+<<<<<<< Updated upstream
             'keyboard_teleop = my_ur_station.keyboard_teleop:main',
             'keyboard_teleop_servo = my_ur_station.keyboard_teleop_servo:main',
             'keyboard_teleop_direct = my_ur_station.keyboard_teleop_direct:main',
             'cartesian_teleop = my_ur_station.cartesian_teleop:main',
+=======
+            'keyboard_teleop_servo = my_ur_station.keyboard_teleop_servo:main',
+            'servo_twist_cmd = my_ur_station.servo_twist_cmd:main',
+>>>>>>> Stashed changes
         ],
     },
 )
